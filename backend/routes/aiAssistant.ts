@@ -5,19 +5,20 @@ import { routeAction } from "../services/intentRouter";
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  const { query } = req.body;
-  if (!query) {
-    return res.status(400).json({ error: "Missing 'query' in request body." });
+  const { query, email } = req.body;
+  if (!query || !email) {
+    return res.status(400).json({ error: "Missing query or email." });
   }
 
   try {
     const geminiResponse = await askGemini(query);
-    const routed = routeAction(geminiResponse, query);
+    const routed = await routeAction(geminiResponse, query, email);
     return res.json(routed);
   } catch (error) {
-    console.error("Error processing Gemini response:", error);
-    return res.status(500).json({ error: "Internal server error." });
+    return res.status(500).json({ error: "Failed to process request." });
   }
 });
+
+
 
 export default router;
