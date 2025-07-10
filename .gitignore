@@ -1,0 +1,54 @@
+# Node modules in any folder
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# TypeScript cache and output
+*.tsbuildinfo
+
+# Logs (from any folder)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env
+.env.*.local
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Coverage
+coverage/
+
+# Jest or test-related files
+*.test.ts
+*.spec.ts
+jest.config.js
+
+# Next.js or similar (if applicable)
+.next/
+out/
+
+# Cache
+.cache/
+.eslintcache
+turbo/
+
+# Misc
+*.log
+*.tgz
+*.lock-wscript
+
+# Lock files (if you're okay with ignoring them — optional)
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
