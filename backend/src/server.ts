@@ -5,6 +5,8 @@ import connectDB from "./config/db";
 
 // Import your AI route
 import aiRoutes from "./routes/aiRoutes";
+import { escalateToHuman, voiceBridge } from './controllers/callController';
+import axios from 'axios';
 
 // Load environment variables
 dotenv.config();
@@ -23,6 +25,10 @@ connectDB();
 app.get("/", (_req, res) => {
   res.send("AI backend is running");
 });
+
+// Register the route
+app.post('/escalate-to-human', escalateToHuman);
+app.post('/twilio/voice-bridge', voiceBridge);
 
 // Mount AI routes
 app.use("/api/ai", aiRoutes);

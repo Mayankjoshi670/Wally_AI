@@ -4,6 +4,7 @@ import { Chat } from "../models/chat";
 import { User } from "../models/user";
 import { Order } from "../models/order";
 import { RefundRequest } from "../models/refundRequest";
+import axios from 'axios'; // Make sure this is imported
 
 export const handleAiMessage = async (req: Request, res: Response) => {
   const { message, userPhone } = req.body;
@@ -117,6 +118,23 @@ Respond ONLY in this strict JSON format:
           reason: message.length < 100 ? "Requested via AI assistant" : message,
         });
       }
+    }
+
+    // If intent is "connect_human" and actionRequired is true, trigger Twilio call
+    if (intent === "connect_human" && actionRequired) {
+      // Trigger Twilio call via your ngrok endpoint
+      try {
+        await axios.post(
+          process.env.SERVER_URL + '/escalate-to-human',
+          { userPhone },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+        console.log('Escalation triggered for', userPhone);
+      } catch (err) {
+        console.error('Failed to escalate to human:', err);
+      }
+      await Chat.create({ userId: user?._id, message, request: response });
+      return res.json({ response });
     }
 
     // Save chat and return response
