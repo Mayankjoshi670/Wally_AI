@@ -1,16 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "CommonJS",
-    "outDir": "./dist",
-    "rootDir": "./",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "baseUrl": "./",
-    "paths": {
-      "@google/genai": ["node_modules/@google/generative-ai"]
-    }
+    "target": "ES6",                        // ✅ Compile to ES6
+    "module": "CommonJS",                   // ✅ CommonJS is used by Node.js
+    "rootDir": "./src",                     // ✅ Your TS source files go in /src
+    "outDir": "./dist",                     // ✅ Compiled JS goes in /dist
+    "strict": true,                         // ✅ Enable strict type checking
+    "esModuleInterop": true,                // ✅ Allow clean import of commonjs packages
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
   },
-  "exclude": ["node_modules"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }
