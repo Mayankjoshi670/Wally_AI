@@ -5,6 +5,7 @@ import connectDB from "./config/db";
 
 // Import your AI route
 import aiRoutes from "./routes/aiRoutes";
+import chatRoutes from "./routes/chatRoutes";
 import { escalateToHuman, voiceBridge } from './controllers/callController';
 import axios from 'axios';
 
@@ -32,6 +33,9 @@ app.post('/twilio/voice-bridge', voiceBridge);
 
 // Mount AI routes
 app.use("/api/ai", aiRoutes);
+
+// Mount Chat routes
+app.use("/api/chat", chatRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;

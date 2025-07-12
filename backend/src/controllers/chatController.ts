@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import { animationCode } from "../services/geminiService";
+import { chatCode } from "../services/geminiService";
 import { Chat } from "../models/chat";
 import { User } from "../models/user";
 import { Order } from "../models/order";
 import { RefundRequest } from "../models/refundRequest";
-import axios from 'axios'; // Make sure this is imported
+import axios from 'axios';
 
-export const handleAiMessage = async (req: Request, res: Response) => {
+export const handleChatMessage = async (req: Request, res: Response) => {
   const { message, userPhone } = req.body;
 
   try {
@@ -17,14 +17,10 @@ export const handleAiMessage = async (req: Request, res: Response) => {
     const orders = await Order.find({ userPhone });
     const refunds = await RefundRequest.find({ userPhone });
 
-    // Remove early return for no orders - allow escalation even without orders
-    // if (!orders || orders.length === 0) {
-    //   return res.json({ response: "You don't have any orders yet. How can I assist you today?" });
-    // }
-
+    // Get more chat history for conversational context (last 10 messages)
     const chatHistory = await Chat.find({ userId: user?._id })
       .sort({ timestamp: -1 })
-      .limit(3);
+      .limit(10);
 
     const historyText = chatHistory
       .map((chat) => `User: ${chat.message}\nAssistant: ${chat.request}`)
@@ -47,7 +43,14 @@ export const handleAiMessage = async (req: Request, res: Response) => {
     }).join('\n');
 
     const context = `
-You are a highly expressive, friendly, and empathetic AI voice assistant for a Walmart-like store. The user is interacting with you over a phone call (text-based input, to be converted to speech). Your job is to understand the user's intent, use recent chat history for context, and provide natural, human-like, and context-aware replies.
+You are a friendly, helpful, and conversational AI assistant for a Walmart-like store. The user is chatting with you via text message. You should be warm, engaging, and conversational while still being able to help with order-related tasks.
+
+Your personality:
+- Friendly and approachable, like chatting with a helpful friend
+- Use emojis and casual language appropriately
+- Be conversational and engaging
+- Remember previous conversation context
+- Show empathy and understanding
 
 User Info:
 - Name: ${user?.name || "Unknown"}
@@ -56,31 +59,38 @@ User Info:
 Order Data:
 ${formattedOrders || 'No orders found.'}
 
+Recent Chat History:
+${historyText}
+
 Current Message:
 "${message}"
 
-Instructions:
-- If you need any order information, use the data above. Always use the real data for your reply.
-- If the user asks about a specific order, reference the correct product, status, and dates from the order data.
-- If the order is not found, explain that to the user.
-- If the user asks for a refund, only process it for delivered orders.
-- If the user asks to cancel, only process for orders that are not delivered or cancelled.
-- If the user asks to track, use the order data for status and delivery info.
-- If you need clarification, ask the user in a friendly, conversational way.
-- If the user has no orders but wants to escalate to a human, allow it and be helpful.
+Your capabilities:
+- Help with order tracking, cancellation, and refunds
+- Answer general questions about products, services, policies
+- Engage in casual conversation
+- Escalate to human agent when needed
+- Remember context from previous messages
 
-Reply as a real human agent on a call, including any 'thinking' or 'pause' and the answer, in a single, natural message.
+Instructions:
+- Use the order data above for any order-related questions
+- Be conversational and engaging, not robotic
+- If the user asks about orders, use the real data provided
+- If you need clarification, ask in a friendly way
+- If the user wants to escalate, be helpful and supportive
+- Maintain conversation flow and context
+
 Respond ONLY in this strict JSON format:
 {
-  "response": "Conversational, human-like reply for the user, suitable for voice/call.",
-  "intent": "cancel_order | track_order | refund_request | connect_human | unknown",
+  "response": "Conversational, friendly reply to the user",
+  "intent": "chat | track_order | cancel_order | refund_request | connect_human | unknown",
   "orderId": "1004", // if relevant, else null
   "actionRequired": true | false,
   "missingData": "ask user for refund reason | ask for order id | null"
 }
 `;
 
-    const aiResponse = await animationCode(context);
+    const aiResponse = await chatCode(context);
     // Parse LLM structured output
     let parsed;
     try {
@@ -107,7 +117,6 @@ Respond ONLY in this strict JSON format:
     // Business logic for track_order
     if (intent === "track_order" && actionRequired) {
       // The LLM already has the order data and will provide accurate status
-      // No additional DB operations needed for tracking - just return the response
       await Chat.create({ userId: user?._id, message, request: response });
       return res.json({ response });
     }
@@ -184,9 +193,9 @@ Respond ONLY in this strict JSON format:
       }
     }
 
-    // If intent is "connect_human" and actionRequired is true, trigger Twilio call
+    // If intent is "connect_human" and actionRequired is true, trigger escalation
     if (intent === "connect_human" && actionRequired) {
-      // Trigger Twilio call via your ngrok endpoint
+      // For chat, we can either trigger a call or just acknowledge the request
       try {
         await axios.post(
           process.env.SERVER_URL + '/escalate-to-human',
@@ -201,7 +210,7 @@ Respond ONLY in this strict JSON format:
       return res.json({ response });
     }
 
-    // Save chat and return response
+    // For regular chat, just save and return response
     await Chat.create({ userId: user?._id, message, request: response });
     return res.json({ response });
 
@@ -210,3 +219,42 @@ Respond ONLY in this strict JSON format:
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+// Get chat history for a user
+export const getChatHistory = async (req: Request, res: Response) => {
+  const { userPhone } = req.params;
+
+  try {
+    const user = await User.findOne({ phone: userPhone });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const chatHistory = await Chat.find({ userId: user._id })
+      .sort({ timestamp: 1 })
+      .limit(50);
+
+    res.json({ chatHistory });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// Clear chat history for a user
+export const clearChatHistory = async (req: Request, res: Response) => {
+  const { userPhone } = req.params;
+
+  try {
+    const user = await User.findOne({ phone: userPhone });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    await Chat.deleteMany({ userId: user._id });
+    res.json({ message: "Chat history cleared successfully" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}; 
