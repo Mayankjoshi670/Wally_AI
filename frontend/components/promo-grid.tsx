@@ -16,10 +16,10 @@ export default function PromoGrid() {
           </div>
           <div className="absolute bottom-4 right-4">
             <Image
-              src="/placeholder.svg?height=80&width=80"
+              src="/penci.jpeg?height=200&width=250"
               alt="Crayola Colored Pencils"
-              width={80}
-              height={80}
+              width={180}
+              height={100}
               className="rounded"
             />
           </div>
@@ -43,9 +43,9 @@ export default function PromoGrid() {
             </div>
             <div className="hidden md:block">
               <Image
-                src="/placeholder.svg?height=200&width=300"
+                src="/kitchen.jpg?height=200&width=300"
                 alt="Kitchen Appliances"
-                width={300}
+                width={340}
                 height={200}
                 className="rounded"
               />
@@ -65,9 +65,9 @@ export default function PromoGrid() {
           </div>
           <div className="absolute bottom-4 right-4">
             <Image
-              src="/placeholder.svg?height=80&width=120"
+              src="/Vizio.jpg?height=80&width=120"
               alt="Vizio TV"
-              width={120}
+              width={180}
               height={80}
               className="rounded"
             />
@@ -86,10 +86,10 @@ export default function PromoGrid() {
           </div>
           <div className="absolute bottom-4 right-4">
             <Image
-              src="/placeholder.svg?height=100&width=100"
+              src="/pot.jpeg?height=100&width=100"
               alt="Instant Pot"
-              width={100}
-              height={100}
+              width={170}
+              height={200}
               className="rounded"
             />
           </div>
@@ -107,10 +107,10 @@ export default function PromoGrid() {
           </div>
           <div className="absolute bottom-4 right-4">
             <Image
-              src="/placeholder.svg?height=100&width=80"
+              src="/dryer.jpg?height=140&width=200"
               alt="Hair Dryer"
-              width={80}
-              height={100}
+              width={140}
+              height={130}
               className="rounded"
             />
           </div>
@@ -128,10 +128,10 @@ export default function PromoGrid() {
           </div>
           <div className="absolute bottom-4 right-4">
             <Image
-              src="/placeholder.svg?height=80&width=100"
+              src="/lego.jpg?height=80&width=100"
               alt="LEGO Set"
-              width={100}
-              height={80}
+              width={230}
+              height={120}
               className="rounded"
             />
           </div>

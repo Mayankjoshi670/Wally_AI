@@ -21,24 +21,13 @@ export default function AuthDialog() {
   const [showPassword, setShowPassword] = useState(false)
   const [showSignUpPassword, setShowSignUpPassword] = useState(false)
 
-  const formatPhoneNumber = (value: string) => {
-    const phoneNumber = value.replace(/\D/g, "")
-    if (phoneNumber.length >= 6) {
-      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`
-    } else if (phoneNumber.length >= 3) {
-      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`
-    } else {
-      return phoneNumber
-    }
-  }
-
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   }
 
   const validatePhone = (phone: string) => {
-    const phoneDigits = phone.replace(/\D/g, "")
-    return phoneDigits.length === 10
+    // Must start with + and be followed by 12-15 digits
+    return /^\+\d{12,15}$/.test(phone)
   }
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -53,7 +42,7 @@ export default function AuthDialog() {
     }
 
     if (signInMethod === "phone" && !validatePhone(emailOrPhone)) {
-      setError("Please enter a valid 10-digit phone number")
+      setError("Please enter a valid phone number starting with + and 12-15 digits")
       return
     }
 
@@ -88,7 +77,7 @@ export default function AuthDialog() {
     }
 
     if (!validatePhone(phone)) {
-      setError("Please enter a valid 10-digit phone number")
+      setError("Please enter a valid phone number starting with + and 12-15 digits")
       return
     }
 
@@ -98,15 +87,6 @@ export default function AuthDialog() {
       setSignUpForm({ email: "", password: "", name: "", phone: "" })
     } else {
       setError("Registration failed. Please try again.")
-    }
-  }
-
-  const handlePhoneInput = (value: string, field: "signIn" | "signUp") => {
-    const formatted = formatPhoneNumber(value)
-    if (field === "signIn") {
-      setSignInForm((prev) => ({ ...prev, emailOrPhone: formatted }))
-    } else {
-      setSignUpForm((prev) => ({ ...prev, phone: formatted }))
     }
   }
 
@@ -264,11 +244,11 @@ export default function AuthDialog() {
                     <Input
                       id="signin-credential"
                       type={signInMethod === "email" ? "email" : "tel"}
-                      placeholder={signInMethod === "email" ? "Enter your email" : "(555) 123-4567"}
+                      placeholder={signInMethod === "email" ? "Enter your email" : "+91XXXXXXXXXX"}
                       value={signInForm.emailOrPhone}
                       onChange={(e) => {
                         if (signInMethod === "phone") {
-                          handlePhoneInput(e.target.value, "signIn")
+                          setSignInForm((prev) => ({ ...prev, emailOrPhone: e.target.value }))
                         } else {
                           setSignInForm((prev) => ({ ...prev, emailOrPhone: e.target.value }))
                         }
@@ -373,9 +353,9 @@ export default function AuthDialog() {
                       <Input
                         id="signup-phone"
                         type="tel"
-                        placeholder="(555) 123-4567"
+                        placeholder="+91XXXXXXXXXX"
                         value={signUpForm.phone}
-                        onChange={(e) => handlePhoneInput(e.target.value, "signUp")}
+                        onChange={(e) => setSignUpForm((prev) => ({ ...prev, phone: e.target.value }))}
                         className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                         required
                       />

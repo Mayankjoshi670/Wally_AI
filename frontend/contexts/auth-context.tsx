@@ -45,9 +45,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const isEmail = emailOrPhone.includes("@")
       const userData = {
         id: Math.random().toString(36).substr(2, 9),
-        email: isEmail ? emailOrPhone : `${emailOrPhone}@phone.walmart.com`, // Mock email for phone users
+        email: isEmail ? emailOrPhone : `${emailOrPhone.replace(/\D/g, "")}@phone.walmart.com`, // Mock email for phone users
         name: isEmail ? emailOrPhone.split("@")[0] : `User${emailOrPhone.slice(-4)}`,
-        phone: isEmail ? "Not provided" : emailOrPhone,
+        phone: isEmail ? "Not provided" : emailOrPhone, // Store the normalized phone number
       }
 
       setUser(userData)
@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         id: Math.random().toString(36).substr(2, 9),
         email,
         name,
-        phone,
+        phone, // Store the normalized phone number
       }
 
       setUser(userData)

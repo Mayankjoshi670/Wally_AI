@@ -6,6 +6,7 @@ import ProductCategories from "@/components/product-categories"
 import FeaturedProducts from "@/components/featured-products"
 import ServicesSection from "@/components/services-section"
 import Footer from "@/components/footer"
+import PhoneTest from "@/components/phone-test"
 
 export default function HomePage() {
   return (
@@ -19,6 +20,14 @@ export default function HomePage() {
         <ProductCategories />
         <FeaturedProducts />
         <ServicesSection />
+        
+        {/* Temporary Phone Test Section */}
+        <section className="py-12 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <h2 className="text-2xl font-bold text-center mb-8">Phone Number Test</h2>
+            <PhoneTest />
+          </div>
+        </section>
       </main>
       <Footer />
       <ChatbotWidget />
